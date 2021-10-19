@@ -1,6 +1,5 @@
 const express = require('express');
-
-const Thing = require('./models/thing');
+const stuffRoutes = require('./routes/stuff');
 
 const app = express();
 
@@ -13,21 +12,6 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-app.post('/api/stuff', (req, res, next) => {
-    console.log(req.body);
-    res.status(201).json({
-      message: 'Objet créé !'
-    });
-});
-
-app.post('/api/stuff', (req, res, next) => {
-    delete req.body._id;
-    const thing = new Thing({
-      ...req.body
-    });
-    thing.save()
-      .then(() => res.status(201).json({ message: 'Objet enregistré !'}))
-      .catch(error => res.status(400).json({ error }));
-  });
+app.use('/api/stuff', stuffRoutes);
 
 module.exports = app;
