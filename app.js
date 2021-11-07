@@ -13,8 +13,6 @@ const userRoutes = require('./routes/user');
 const helmet = require('helmet');
 require('dotenv').config();
 
-const app = express();
-
 //middleware Header pour contourner les erreurs en débloquant certains systèmes de sécurité CORS, afin que tout le monde puisse faire des requetes depuis son navigateur
 app.use((req, res, next) => {
     //on indique que les ressources peuvent être partagées depuis n'importe quelle origine
