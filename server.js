@@ -1,5 +1,6 @@
 const http = require('http');   //import du package http - https requiert un certificat SSL à obtenir avec un nom de domaine
 const app = require('./app');   //import de app pour utilisation de l'application sur le serveur
+require('dotenv').config();
 
 //normalizePort renvoie un port valide
 const normalizePort = val => {
