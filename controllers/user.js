@@ -63,3 +63,71 @@ exports.login = (req, res, next) => {       //permet aux utilisateurs de se conn
     })
     .catch(error => res.status(500).json({ error }));
 };
+
+//Avoir les informations d'un compte
+exports.getUserProfile = (req, res, next) => {
+    const id = req.params.id;
+    db.User.findOne({
+        attributes: [ 'id', 'lastName', 'firstName', 'email', 'isAdmin', 'imageProfile' ],
+        where: { id: id }
+    })
+    .then(user => {
+        if(user) {
+            res.status(200).json(user);
+        } else {
+            res.status(401).json({ error: 'User not found !' })
+        }
+    })
+    .catch(error => res.status(500).json({ error }));
+}
+
+//Modification d'un compte
+exports.modifyUserProfile = (req, res, next) => {
+    const token = req.headers.authorization.split(' ')[1];
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET_TOKEN);
+    const userId = decodedToken.userId;
+    req.body.user = userId
+    console.log('bodyUser', req.body.user);
+    const userObject = req.file ?
+    {
+    ...JSON.parse(req.body.user),
+    imageProfile: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
+    } : { ...req.body };
+    db.User.findOne({
+        where: { id: userId },
+    })
+    .then(userFound => {
+        if(userFound) {
+            db.User.update(userObject, {
+                where: { id: userId}
+            })
+            .then(user => res.status(200).json({ message: 'Your profile has been modified !' }))
+            .catch(error => res.status(400).json({ error }))
+        }
+        else {
+            res.status(401).json({ error: 'User not found !' });
+        }
+    })
+    .catch(error => res.status(500).json({ error }));
+}
+
+//Suppression d'un compte
+exports.deleteAccount = (req, res, next) => {
+    const id = req.params.id;
+    db.User.findOne({
+        attributes: ['id'],
+        where: { id: id }
+    })
+    .then(user => {
+        if(user) {
+            db.User.destroy({ 
+                where: { id: id } 
+            })
+            .then(() => res.status(200).json({ message: 'Your account has been deleted !' }))
+            .catch(() => res.status(500).json({ error }));
+        } else {
+            return res.status(401).json({ error: 'User not found !' })
+        }
+    })
+    .catch(error => res.status(500).json({ error }));
+}
