@@ -4,7 +4,7 @@ const passwordValidator = require('password-validator'); //on utilise le package
 let passwordSchema = new passwordValidator();
 passwordSchema
 .is().min(6)                                    //longueur minimum 6
-.is().max(20)                                   //longueur maximum 20
+.is().max(30)                                   //longueur maximum 30
 .has().uppercase()                              //contient une majuscule
 .has().lowercase()                              //contient une minuscule
 .has().digits(2)                                //contient deux chiffres
