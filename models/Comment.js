@@ -29,8 +29,6 @@ module.exports = (sequelize, DataTypes) => {
             },
         },
 		content: DataTypes.STRING,
-		createdAt: DataTypes.DATE,
-		updatedAt: DataTypes.DATE
 	}, {
 		sequelize,
 		modelName: 'Comment',

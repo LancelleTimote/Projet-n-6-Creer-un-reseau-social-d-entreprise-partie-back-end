@@ -1,6 +1,6 @@
-const db = require('../models/index');
 const fs = require('fs');   //importation de file system du package node, pour avoir accès aux différentes opérations lié au système de fichiers (ici les téléchargements et modifications d'images)
 const jwt = require('jsonwebtoken');
+const db = require('../models');
 require('dotenv').config();
 
 //Création d'un nouveau message

@@ -16,7 +16,7 @@ const normalizePort = val => {
 
 //ajout du port de connection si celui-ci n'est pas declarer par l environnement
 //si aucun port n'est fourni on écoutera sur le port 8080
-const port = normalizePort(process.env.port || '8080');
+const port = normalizePort(process.env.port || 8080);
 app.set('port', port);
 
 //la fonction errorHandler recherche les différentes erreurs et les gère de manière appropriée

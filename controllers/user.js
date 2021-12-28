@@ -1,50 +1,41 @@
 //on retrouve ici la logique métier en lien avec nos utilisateurs, appliqué aux routes POST pour les opérations d'inscription et de connexion
-
 const bcrypt = require('bcrypt');       //on utilise l'algorithme bcrypt pour hasher le mot de passe des utilisateurs
 const jwt = require('jsonwebtoken');    //on utilise le package jsonwebtoken pour attribuer un token à un utilisateur au moment ou il se connecte
-const User = require('../models/User'); //on récupère notre model User, créée avec le schéma mongoose
-const CryptoJS = require('crypto-js');  //on utilise le package cryptojs pour hash l'email
-const passwordVerification = require('../middleware/passwordVerification');
+const db = require('../models');
 require('dotenv').config();
 
+
 //Regex
-const regexEmail = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}$/;
+const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,63}$/;
+const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,30}$/;
 
-//CryptoJS cryptage email
-const key = CryptoJS.enc.Utf8.parse(process.env.emailSecretKey);
-const iv = CryptoJS.enc.Utf8.parse(process.env.otherEmailSecretKey);
-
-function encryptEmail(string) {
-    const enc = CryptoJS.AES.encrypt(string, key, { iv: iv });
-    return enc;
-}
 
 //création d'un nouvel utilisateur
 exports.signup = (req, res, next) => {  //on sauvegarde un nouvel utilisateur et crypte son mot de passe avec un hash généré par bcrypt
-    let lastName = req.body.lastName;
-    let firstName = req.body.firstName;
-    let email = req.body.email;
-    let password = req.body.password;
+    var lastName = req.body.lastName;
+    var firstName = req.body.firstName;
+    var email = req.body.email;
+    var password = req.body.password;
 
     //vérification si tous les champs sont bien complets
     if(lastName == null || lastName == '' || firstName == null || firstName == '' || email == null || email == '' || password == null || password == '') {
-        return res.status(400).json({ error: 'Fields are incomplete! All fields must be completed !' });
+        return res.status(400).json({ error: 'Les champs sont incomplets ! Tous les champs doivent être remplis !' });
     }
     //contrôle de la longueur du nom
-    if(lastName.length <= 3 || lastName.length >= 50) {
-        return res.status(400).json({ error: 'The last name must contain between 3 and 50 characters !' });
+    if(lastName.length <= 2 || lastName.length >= 100) {
+        return res.status(400).json({ error: 'Le nom doit contenir entre 3 et 100 caractères !' });
     }
     //contrôle de la longueur du prénom
-    if(firstName.length <= 3 || firstName.length >= 50) {
-        return res.status(400).json({ error: 'The first name must contain between 3 and 50 characters !' });
+    if(firstName.length <= 2 || firstName.length >= 100) {
+        return res.status(400).json({ error: 'Le prénom doit contenir entre 3 et 100 caractères !' });
     }
     //contrôle de la validité du mail
-    if(!regexEmail.test(email)) {
-        return res.status(400).json({ error: 'Invalid email !' });
+    if(!emailRegex.test(email)) {
+        return res.status(400).json({ error: 'Email invalide !' });
     }
     //contrôle de la validité du mot de passe
-    if (!passwordVerification.test(password)) {
-        return res.status(400).json({ error: 'The password must be between 8 and 30 characters long, including at least one uppercase letter, one lowercase letter, two digits, and one symbol !' });
+    if (!passwordRegex.test(password)) {
+        return res.status(400).json({ error: 'Le mot de passe doit comporter entre 8 et 30 caractères, dont au moins une lettre majuscule, une lettre minuscule, un chiffre et un caractère spécial !' });
     }
     //vérification que l'utilisation n'existe pas encore
     db.User.findOne({
@@ -62,41 +53,33 @@ exports.signup = (req, res, next) => {  //on sauvegarde un nouvel utilisateur et
                 const user = db.User.build({         //on crée le nouvel utilisateur avec notre modèle mongoose
                     lastName: req.body.lastName,
                     firstName: req.body.firstName,
-                    email: encryptEmail(req.body.email),               //le mail crypté
+                    email: req.body.email,       
                     password : hash,            //on récupère le mdp hashé de bcrypt
-                    admin :0
+                    admin: 0
                 });
-                console.log("user.email :");
-                console.log(user.email);
                 user.save()                     //on utilise la méthode save de notre user pour l'enregistrer dans la bdd
-                .then(() => res.status(201).json({ message: 'Your account has been registered !' }))
-                .catch(error => res.status(400).json({ error }));    //s'il existe déjà un utilisateur avec cette adresse email
+                .then(() => res.status(201).json({ message: 'Votre compte a bien été créé !' }))
+                .catch(error => res.status(400).json({ error: 'Une erreur s\'est produite pendant la création du compte, veuillez recommencer ultérieurement.' }));
             })
-            .catch(error => res.status(500).json({ error }));
+            .catch(error => res.status(500).json({ error: 'Une erreur s\'est produite lors de la création de votre compte, veuillez recommencer ultérieurement.' }));
         } else {
-            return res.status(404).json({ error : 'This user already exists !' })
+            return res.status(404).json({ error : 'Cet utilisateur existe déjà !' })
         }
     })
-    .catch(error => res.status(500).json({ error }));
+    .catch(error => res.status(500).json({ error: 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }));
 };
 
 //connection d'un utilisateur
 exports.login = (req, res, next) => {       //permet aux utilisateurs de se connecter avec des utilisateurs existants
-    const encryptEmailTest = encryptEmail(req.body.email);
-    const decryptEmail = CryptoJS.AES.decrypt(encryptEmailTest, key, { iv: iv });
-    console.log("encryptEmailTest :");
-    console.log(encryptEmailTest.toString());
-    console.log("decryptEmail :");
-    console.log(decryptEmail.toString(CryptoJS.enc.Utf8));
     db.User.findOne({
-        where: { email: encryptEmail(req.body.email).toString() }   //user.findOne pour trouver un seul utilisateur de la bdd, puisque mail unique, on veut que se soit l'utilisateur pour qui le mail
+        where: { email: req.body.email }   //user.findOne pour trouver un seul utilisateur de la bdd, puisque mail unique, on veut que se soit l'utilisateur pour qui le mail
     })
     .then(user => {
         if (user) {
             bcrypt.compare(req.body.password, user.password)    //on utilise bcrypt pour comparer les hashs et savoir si ils ont la même string d'origine
             .then(valid => {
                 if (!valid) {   //si la comparaison n'est pas valable
-                    return res.status(401).json({ error: 'Incorrect password !' }); //on retourne un 401 non autorisé, avec une erreur mdp incorrect
+                    return res.status(401).json({ error: 'Mot de passe incorrect !' }); //on retourne un 401 non autorisé, avec une erreur mdp incorrect
                 }
                 res.status(200).json({  //si la comparaison est valable, on renvoie un statut, 200 pour une requête ok, on renvoie un objet JSON avec un userID + un token
                     userId: user.id,
@@ -113,13 +96,13 @@ exports.login = (req, res, next) => {       //permet aux utilisateurs de se conn
                     )
                 });
             })
-            .catch(error => res.status(500).json({ error }));  
+            .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite pendant la connexion, veuillez recommencer ultérieurement.' }));  
         } else {
-            return res.status(404).json({ error : 'This user does not exist, please create an account !' })
+            return res.status(404).json({ error : 'Cet utilisateur n\'existe pas, veuillez créer un compte !' })
         }
 
     })
-    .catch(error => res.status(500).json({ error }));
+    .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }));
 };
 
 //Avoir les informations d'un compte
@@ -133,10 +116,10 @@ exports.getUserProfile = (req, res, next) => {
         if(user) {
             res.status(200).json(user);
         } else {
-            res.status(401).json({ error: 'User not found !' })
+            res.status(401).json({ error: 'Utilisateur inconnu !' })
         }
     })
-    .catch(error => res.status(500).json({ error }));
+    .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }));
 }
 
 //Modification d'un compte
@@ -159,14 +142,14 @@ exports.modifyUserProfile = (req, res, next) => {
             db.User.update(userObject, {
                 where: { id: userId}
             })
-            .then(user => res.status(200).json({ message: 'Your profile has been modified !' }))
-            .catch(error => res.status(400).json({ error }))
+            .then(user => res.status(200).json({ message: 'Votre profil a été modifié !' }))
+            .catch(error => res.status(400).json({ error : 'Une erreur s\'est produite pendant la modification du profil, veuillez recommencer ultérieurement.' }))
         }
         else {
-            res.status(401).json({ error: 'User not found !' });
+            res.status(401).json({ error: 'Utilisateur inconnu !' });
         }
     })
-    .catch(error => res.status(500).json({ error }));
+    .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }));
 }
 
 //Suppression d'un compte
@@ -181,11 +164,11 @@ exports.deleteAccount = (req, res, next) => {
             db.User.destroy({ 
                 where: { id: id } 
             })
-            .then(() => res.status(200).json({ message: 'Your account has been deleted !' }))
-            .catch(() => res.status(500).json({ error }));
+            .then(() => res.status(200).json({ message: 'Votre compte a été supprimé !' }))
+            .catch(() => res.status(500).json({ error : 'Une erreur s\'est produite pendant la suppression du compte, veuillez recommencer ultérieurement.' }));
         } else {
-            return res.status(401).json({ error: 'User not found !' })
+            return res.status(401).json({ error: 'Utilisateur inconnu !' })
         }
     })
-    .catch(error => res.status(500).json({ error }));
+    .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }));
 }

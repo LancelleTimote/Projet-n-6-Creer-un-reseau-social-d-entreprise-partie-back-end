@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const db = require('../models/index');
+const db = require('../models');
 require('dotenv').config();
 
 //Création d'un nouveau commentaire

@@ -1,5 +1,4 @@
 //contient les fonctions qui s'appliquent aux différentes routes pour les utilisateurs
-
 const express = require('express');
 const router = express.Router();                        //on crée un router avec la méthode mise à disposition par Express
 const userController = require('../controllers/user');  //contrôleur pour associer les fonctions aux différentes routes
