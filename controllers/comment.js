@@ -18,13 +18,13 @@ exports.createComment = (req, res, next) => {
                 userId: userId
             })
             comment.save()
-                .then(() => res.status(201).json({ message: 'Your comment has been created !' }))
-                .catch(error => res.status(400).json({ error }));
+                .then(() => res.status(201).json({ message: 'Votre commentaire a été créé avec succès !' }))
+                .catch(error => res.status(400).json({ error : 'Une erreur s\'est produite pendant la création de votre commentaire, veuillez recommencer ultérieurement.' }));
         } else {
-            return res.status(401).json({ error: 'Message not found !'})
+            return res.status(401).json({ error: 'Aucun message trouvé !'})
         }
     })
-    .catch(error => res.status(500).json({ error }));
+    .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }));
 }
 
 //Affichage des commentaires
@@ -42,11 +42,11 @@ exports.getAllComments = (req, res, next) => {
             res.status(200).json(commentFound);
             console.log(commentFound);
         } else {
-            res.status(401).json({ error: 'No comments found !' });
+            res.status(401).json({ error: 'Aucun commentaire trouvé !' });
         }
     })
     .catch(error => {
-        res.status(500).send({ error });
+        res.status(500).send({ error : 'Une erreur s\'est produite pendant la recherche des commentaires, veuillez recommencer ultérieurement.' });
     });
 }
 
@@ -61,12 +61,12 @@ exports.deleteComment = (req, res, next) => {
             db.Comment.destroy({ 
                 where: { id: req.params.commentId } 
             })
-            .then(() => res.status(200).json({ message: 'Your comment has been deleted !' }))
-            .catch(() => res.status(500).json({ error }));
+            .then(() => res.status(200).json({ message: 'Votre commentaire a été supprimé avec succès !' }))
+            .catch(() => res.status(500).json({ error : 'Une erreur s\'est produite pendant la suppression de votre commentaire, veuillez recommencer ultérieurement.' }));
             
         } else {
-            return res.status(401).json({ error: 'Comment not found !'})
+            return res.status(401).json({ error: 'Aucun commentaire trouvé !'})
         }
     })
-    .catch(error => res.status(500).json({ error }));
+    .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }));
 }

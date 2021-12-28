@@ -11,11 +11,11 @@ exports.createPost = (req, res, next) => {
     const userId = decodedToken.userId;
     //Vérification tous les champs complet
     if (content == null || content == '') {
-        return res.status(400).json({ error: 'All fields must be completed !' });
+        return res.status(400).json({ error: 'Tous les champs doivent être remplis !' });
     } 
     //Contrôle longueur du titre et contenu du message
-    if (content.length <= 4) {
-        return res.status(400).json({ error: 'The content of the message must contain at least 4 characters !' });
+    if (content.length <= 2) {
+        return res.status(400).json({ error: 'Le contenu du message doit être d\'au moins 3 caractères !' });
     }
     db.User.findOne({
         where: { id: userId }
@@ -28,13 +28,13 @@ exports.createPost = (req, res, next) => {
                 UserId: userFound.id
             })
             post.save()
-            .then(() => res.status(200).json({ message: 'Your message has been created !' }))
-            .catch(error => res.status(500).json({ error }));
+            .then(() => res.status(200).json({ message: 'Votre message a été créé avec succès !' }))
+            .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite pendant la création du message, veuillez recommencer ultérieurement.' }));
         } else {
-            return res.status(401).json({ error: 'User not found !' })
+            return res.status(401).json({ error: 'Utilisateur inconnu !' })
         }
     })
-    .catch(error => res.status(500).json({ error }));
+    .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }));
 };
 
 //Affichage tous les messages
@@ -52,10 +52,10 @@ exports.getAllPosts = (req, res, next) => {
         if(postFound) {
             res.status(200).json(postFound);
         } else {
-            res.status(401).json({ error: 'No message found !' });
+            res.status(401).json({ error: 'Aucun message trouvé !' });
         }
     })
-    .catch(error => res.status(500).json({ error }));
+    .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite pendant l\'affichage des messages, veuillez recommencer ultérieurement.' }));
 }
 
 //Modification d'un message
@@ -78,14 +78,14 @@ exports.modifyPost = (req, res, next) => {
             db.Post.update(postObject, {
                 where: { id: req.params.postId}
             })
-            .then(post => res.status(200).json({ message: 'Your message has been modified !' }))
-            .catch(error => res.status(500).json({ error }))
+            .then(post => res.status(200).json({ message: 'Votre message a été modifié avec succès !' }))
+            .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite pendant la modification de votre message, veuillez recommencer ultérieurement.' }))
         }
         else {
-            res.status(401).json({ error: 'Message not found !' });
+            res.status(401).json({ error: 'Aucun message trouvé !' });
         }
     })
-    .catch(error => res.status(500).json({ error }));
+    .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }));
 }
 
 //Suppression d'un message
@@ -102,19 +102,19 @@ exports.deletePost = (req, res, next) => {
                     db.Post.destroy({ 
                         where: { id: req.params.postId } 
                     })
-                    .then(() => res.status(200).json({ message: 'Your message has been deleted !' }))
-                    .catch(() => res.status(500).json({ error }));
+                    .then(() => res.status(200).json({ message: 'Votre message a été supprimé avec succès !' }))
+                    .catch(() => res.status(500).json({ error : 'Une erreur s\'est produite pendant la suppression de votre message, veuillez recommencer ultérieurement.' }));
                 })
             } else {
                 db.Post.destroy({ 
                     where: { id: req.params.postId } 
                 })
-                .then(() => res.status(200).json({ message: 'Your message has been deleted !' }))
-                .catch(() => res.status(500).json({ error }));
+                .then(() => res.status(200).json({ message: 'Votre message a été supprimé avec succès !' }))
+                .catch(() => res.status(500).json({ error : 'Une erreur s\'est produite pendant la suppression de votre message, veuillez recommencer ultérieurement.' }));
             }
         } else {
-            return res.status(401).json({ error: 'Message not found !'})
+            return res.status(401).json({ error: 'Aucun message trouvé !'})
         }
     })
-    .catch(error => res.status(500).json({ error }));
+    .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }));
 }

@@ -13,7 +13,7 @@ exports.likePost = (req, res, next) => {
     })
     .then(postfound => {
         if(!postfound) {
-            return res.status(401).json({ error: 'Message not found !' })
+            return res.status(401).json({ error: 'Aucun message trouvé !' })
         } else if (isliked == false) {
             db.Like.create({ 
                 postId: req.params.postId, 
@@ -27,10 +27,10 @@ exports.likePost = (req, res, next) => {
                 },{
                     where: { id: req.params.postId }
                 })
-                .then(() => res.status(201).json({ message: 'You like this message !' }))
-                .catch(error => res.status(500).json({ error })) 
+                .then(() => res.status(201).json({ message: 'Votre j\'aime a été ajouté avec succès !' }))
+                .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite pendant l\'ajout de votre j\'aime, veuillez recommencer ultérieurement.' })) 
             })
-            .catch(error => res.status(500).json({ error }))
+            .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }))
         } else if(isliked == true) {
             db.Like.destroy({ 
                 where: { 
@@ -44,15 +44,15 @@ exports.likePost = (req, res, next) => {
                 },{
                     where: { id: req.params.postId }
                 })
-                .then(() => res.status(201).json({ message: 'You don\'t like this message anymore !' }))
-                .catch(error => res.status(500).json({ error })) 
+                .then(() => res.status(201).json({ message: 'Votre j\'aime pas a été ajouté avec succès !' }))
+                .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite pendant l\'ajout de votre j\'aime pas, veuillez recommencer ultérieurement.' })) 
             })
-            .catch(error => res.status(500).json({ error }))
+            .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }))
         } else {
-            console.log('ko');
+            console.log('K.O');
         }
     })
-    .catch(error => res.status(500).json({ error }))  
+    .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }))  
 }
 
 //Afficher les likes d'un message
@@ -69,8 +69,8 @@ exports.getAllLike = (req, res, next) => {
             res.status(200).json(likePostFound);
             console.log(likePostFound);
         } else {
-            res.status(404).json({ error: 'No like found !' });
+            res.status(404).json({ error: 'Aucun j\'aime trouvé !' });
         }
     })
-    .catch(error => res.status(500).json({ error }))
+    .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }))
 }
