@@ -34,7 +34,7 @@ exports.getAllComments = (req, res, next) => {
         where: { postId: req.params.postId },
         include: [{
             model: db.User,
-            attributes: [ 'firstName', 'lastName', 'imageProfile' ]
+            attributes: [ 'firstName', 'lastName', 'profileAvatar' ]
         }]
     })
     .then(commentFound => {

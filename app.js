@@ -8,6 +8,7 @@ const app = express();
 
 //on donne accès au chemin de notre système de fichier
 const path = require('path'); //plugin qui sert dans l'upload des images et permet de travailler avec les répertoires et chemin de fichier
+const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const postRoutes = require('./routes/post');
 const commentRoutes = require('./routes/comment');
@@ -33,6 +34,7 @@ app.use(express.json());
 //midleware qui permet de charger les fichiers qui sont dans le repertoire images
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
+app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/post', postRoutes);
 app.use('/api/comment', commentRoutes);

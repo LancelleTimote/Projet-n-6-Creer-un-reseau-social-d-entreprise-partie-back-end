@@ -26,7 +26,7 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.STRING
             },
-            imageProfile: {
+            profileAvatar: {
                 type: Sequelize.STRING
             },
             admin: {
