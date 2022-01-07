@@ -7,7 +7,7 @@ const passwordValidator = require('../middleware/passwordValidator');
 const CryptoJS = require('crypto-js');  //on utilise le package cryptojs pour hash l'email
 require('dotenv').config();
 
-//CryptoJS cryptage email
+//CryptoJS clés cryptage email
 const key = CryptoJS.enc.Utf8.parse(process.env.emailSecretKey);
 const iv = CryptoJS.enc.Utf8.parse(process.env.otherEmailSecretKey);
 
@@ -22,8 +22,8 @@ exports.signup = (req, res, next) => {  //on sauvegarde un nouvel utilisateur et
     const firstName = req.body.firstName;
     const email = req.body.email;
     const password = req.body.password;
-    const encryptEmailTest = encryptEmail(email);
-    const decryptEmail = CryptoJS.AES.decrypt(encryptEmailTest, key, { iv: iv });
+    const encryptedEmail = encryptEmail(email).toString();
+    const decryptedEmail = CryptoJS.AES.decrypt(encryptedEmail, key, { iv: iv }).toString(CryptoJS.enc.Utf8);
 
     //vérification si tous les champs sont bien complets
     if(lastName == null || lastName == '' || firstName == null || firstName == '' || email == null || email == '' || password == null || password == '') {
@@ -51,7 +51,7 @@ exports.signup = (req, res, next) => {  //on sauvegarde un nouvel utilisateur et
         where : {
             lastName: lastName,
             firstName: firstName,
-            email: decryptEmail.toString(CryptoJS.enc.Utf8)
+            email: decryptedEmail,
         }
     })
     .then(userExist => {
@@ -61,14 +61,12 @@ exports.signup = (req, res, next) => {  //on sauvegarde un nouvel utilisateur et
                 const user = db.User.build({         //on crée le nouvel utilisateur avec notre modèle mongoose
                     lastName: req.body.lastName,
                     firstName: req.body.firstName,
-                    email: encryptEmailTest.toString(),      
+                    email: encryptedEmail,
                     password : hash,            //on récupère le mdp hashé de bcrypt
                     admin: 0
                 });
-                console.log("user.email :");
-                console.log(user.email);
                 user.save()                     //on utilise la méthode save de notre user pour l'enregistrer dans la bdd
-                .then(() => res.status(201).json({ message: 'Votre compte a bien été créé !' }))
+                .then(() => res.status(201).json({ message: 'Votre compte a été créé avec succès !' }))
                 .catch(error => res.status(400).json({ error: 'Une erreur s\'est produite pendant la création du compte, veuillez recommencer ultérieurement.' }));
             })
             .catch(error => res.status(500).json({ error: 'Une erreur s\'est produite lors de la création de votre compte, veuillez recommencer ultérieurement.' }));
