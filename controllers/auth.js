@@ -7,7 +7,7 @@ const passwordValidator = require('../middleware/passwordValidator');
 const CryptoJS = require('crypto-js');  //on utilise le package cryptojs pour hash l'email
 require('dotenv').config();
 
-//CryptoJS clés cryptage email
+//cryptoJS clés cryptage email
 const key = CryptoJS.enc.Utf8.parse(process.env.emailSecretKey);
 const iv = CryptoJS.enc.Utf8.parse(process.env.otherEmailSecretKey);
 

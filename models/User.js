@@ -36,7 +36,6 @@ module.exports = (sequelize, DataTypes) => {
         },
         profileAvatar: {
             type : DataTypes.STRING,
-            defaultValue: false
         },
         admin: {
             type: DataTypes.BOOLEAN,
