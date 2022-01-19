@@ -2,17 +2,16 @@ const jwt = require("jsonwebtoken");
 const db = require('../models');
 require('dotenv').config();
 
-//Aimer un message
+//aimer un message
 exports.likePost = (req, res, next) => {
-    const token = req.headers.authorization.split(' ')[1];
-    const decodedToken = jwt.verify(token, process.env.tokenSecretKey);
+    const decodedToken = jwt.decode(req.headers.authorization.split(' ')[1], process.env.tokenSecretKey);
     const userId = decodedToken.userId;
     const isliked = req.body.like
     db.Post.findOne({
         where: { id: req.params.postId },
     })
-    .then(postfound => {
-        if(!postfound) {
+    .then(postFound => {
+        if(!postFound) {
             return res.status(401).json({ error: 'Aucun message trouvé !' })
         } else if (isliked == false) {
             db.Like.create({ 
@@ -20,10 +19,10 @@ exports.likePost = (req, res, next) => {
                 userId: userId 
             })
             .then(response => {
-                console.log(postfound.likes);
+                console.log(postFound.likes);
                 
                 db.Post.update({ 
-                    likes: postfound.likes +1
+                    likes: postFound.likes +1
                 },{
                     where: { id: req.params.postId }
                 })
@@ -40,7 +39,7 @@ exports.likePost = (req, res, next) => {
             })
             .then(() => {
                 db.Post.update({ 
-                    likes: postfound.likes -1
+                    likes: postFound.likes -1
                 },{
                     where: { id: req.params.postId }
                 })
@@ -55,7 +54,7 @@ exports.likePost = (req, res, next) => {
     .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }))  
 }
 
-//Afficher les likes d'un message
+//affichage des likes d'un message
 exports.getAllLike = (req, res, next) => {
     db.Like.findAll({
         where: { postId: req.params.postId},
@@ -64,10 +63,9 @@ exports.getAllLike = (req, res, next) => {
             attributes: ['lastName', 'firstName']
         },
     })
-    .then(likePostFound => {
-        if(likePostFound) {
-            res.status(200).json(likePostFound);
-            console.log(likePostFound);
+    .then(likesPostFound => {
+        if(likesPostFound) {
+            res.status(200).json(likesPostFound);
         } else {
             res.status(404).json({ error: 'Aucun j\'aime trouvé !' });
         }

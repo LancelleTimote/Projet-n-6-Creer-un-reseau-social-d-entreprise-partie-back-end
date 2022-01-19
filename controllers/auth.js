@@ -82,23 +82,23 @@ exports.login = (req, res, next) => {       //permet aux utilisateurs de se conn
     db.User.findOne({
         where: { email: encryptEmail(req.body.email).toString() }   //user.findOne pour trouver un seul utilisateur de la bdd, puisque mail unique, on veut que se soit l'utilisateur pour qui le mail
     })
-    .then(user => {
-        if (user) {
-            bcrypt.compare(req.body.password, user.password)    //on utilise bcrypt pour comparer les hashs et savoir si ils ont la même string d'origine
+    .then(userFound => {
+        if (userFound) {
+            bcrypt.compare(req.body.password, userFound.password)    //on utilise bcrypt pour comparer les hashs et savoir si ils ont la même string d'origine
             .then(valid => {
                 if (!valid) {   //si la comparaison n'est pas valable
                     return res.status(401).json({ error: 'Mot de passe incorrect !' }); //on retourne un 401 non autorisé, avec une erreur mdp incorrect
                 }
                 res.status(200).json({  //si la comparaison est valable, on renvoie un statut, 200 pour une requête ok, on renvoie un objet JSON avec un userID + un token
-                    userId: user.id,
-                    admin: user.admin,
-                    lastName: user.lastName,
-                    firstName: user.firstName,
-                    profileAvatar: user.profileAvatar,
+                    userId: userFound.id,
+                    admin: userFound.admin,
+                    lastName: userFound.lastName,
+                    firstName: userFound.firstName,
+                    profileAvatar: userFound.profileAvatar,
                     //permet de vérifier si la requête est authentifiée
                     //on va pouvoir obtenir un token encodé pour cette authentification grâce à jsonwebtoken, on va créer des tokens et les vérifier
                     token: jwt.sign(                //encode un nouveau token avec une chaine de développement temporaire
-                        { userId: user.id },       //encodage de l'userdID nécéssaire dans le cas où une requête transmettrait un userId (ex: modification d'un stuff)
+                        { userId: userFound.id },       //encodage de l'userdID nécéssaire dans le cas où une requête transmettrait un userId (ex: modification d'un stuff)
                         process.env.tokenSecretKey, //clé d'encodage du token
                         { expiresIn: '24h' }        //argument de configuration avec une expiration au bout de 24h
                     )

@@ -15,11 +15,11 @@ exports.getUserProfile = (req, res, next) => {
         attributes: [ 'id', 'lastName', 'firstName', 'email', 'admin', 'profileAvatar', 'createdAt' ],
         where: { id: id }
     })
-    .then(user => {
-        if(user) {
-            const decryptedEmail = CryptoJS.AES.decrypt(user.email, key, { iv: iv }).toString(CryptoJS.enc.Utf8);
-            user.email = decryptedEmail;
-            res.status(200).json(user);
+    .then(userFound => {
+        if(userFound) {
+            const decryptedEmail = CryptoJS.AES.decrypt(userFound.email, key, { iv: iv }).toString(CryptoJS.enc.Utf8);
+            userFound.email = decryptedEmail;
+            res.status(200).json(userFound);
         } else {
             res.status(401).json({ error: 'Utilisateur inconnu !' })
         }
@@ -35,22 +35,22 @@ exports.modifyUserProfile = (req, res, next) => {
     db.User.findOne({   //avant de modifier l'utilisateur, on va le chercher
         where: { id: userId },
     })
-    .then(user => {
-        if (user.id === userId) {   //on vérifie que l'userId dans la BDD correspond à celui de l'utilisateur
-            if (req.file && user.profileAvatar !== null) {  //on crée un objet thingObject qui regarde si req.file existe ou non + image de profil
+    .then(userFound => {
+        if (userFound.id === userId) {   //on vérifie que l'userId dans la BDD correspond à celui de l'utilisateur
+            if (req.file && userFound.profileAvatar !== null) {  //on crée un objet thingObject qui regarde si req.file existe ou non + image de profil
                 const userObject = req.file ?
                 {
                 ...JSON.parse(req.body.user),
                 profileAvatar: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`   //on modifie l'image URL
                 } : { ...req.body };
-                const filename = user.profileAvatar.split('/images/')[1];   //on supprime l'ancienne image
+                const filename = userFound.profileAvatar.split('/images/')[1];   //on supprime l'ancienne image
                 fs.unlinkSync(`images/${filename}`);
                 db.User.update(userObject, {    //on modifie le compte dans la BDD
                     where: { id: userId }
                 })
                 .then(() => res.status(200).json({ message: 'Votre profil a été modifié avec succès !' }))
                 .catch(() => res.status(400).json({ error : 'Une erreur s\'est produite pendant la modification du profil, veuillez recommencer ultérieurement.' }))
-            } else if (req.file && user.profileAvatar === null) {
+            } else if (req.file && userFound.profileAvatar === null) {
                 const userObject = req.file ?
                 {
                 ...JSON.parse(req.body.user),
@@ -79,10 +79,10 @@ exports.deleteAccount = (req, res, next) => {
     db.User.findOne({               //avant de modifier l'utilisateur, on va le chercher
         where: { id: userId },
     })
-    .then(user => {
-        if (user.id === userId) {   //on vérifie que l'userId dans la BDD correspond à celui de l'utilisateur
-            if (user.profileAvatar !== null) {         //on vérifie s'il y a une image de profil
-                const filename = user.profileAvatar.split('/images/')[1];   //on supprime l'ancienne image
+    .then(userFound => {
+        if (userFound.id === userId) {   //on vérifie que l'userId dans la BDD correspond à celui de l'utilisateur
+            if (userFound.profileAvatar !== null) {         //on vérifie s'il y a une image de profil
+                const filename = userFound.profileAvatar.split('/images/')[1];   //on supprime l'ancienne image
                 fs.unlink(`images/${filename}`, () => {
                     db.User.destroy({                                       //on supprime le compte dans la BDD
                         where: { id: userId } 
@@ -90,7 +90,7 @@ exports.deleteAccount = (req, res, next) => {
                     .then(() => res.status(200).json({ message: 'Votre compte a été supprimé avec succès !' }))
                     .catch(() => res.status(500).json({ error : 'Une erreur s\'est produite pendant la suppression du compte, veuillez recommencer ultérieurement.' }));
                 })
-            } else if (user.profileAvatar === null) {
+            } else if (userFound.profileAvatar === null) {
                 db.User.destroy({ 
                     where: { id: userId }
                 })

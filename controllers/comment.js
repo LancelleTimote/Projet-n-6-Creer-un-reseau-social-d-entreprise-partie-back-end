@@ -2,10 +2,9 @@ const jwt = require("jsonwebtoken");
 const db = require('../models');
 require('dotenv').config();
 
-//Création d'un nouveau commentaire
+//création d'un nouveau commentaire
 exports.createComment = (req, res, next) => {    
-    const token = req.headers.authorization.split(' ')[1];
-    const decodedToken = jwt.verify(token, process.env.tokenSecretKey);
+    const decodedToken = jwt.decode(req.headers.authorization.split(' ')[1], process.env.tokenSecretKey);
     const userId = decodedToken.userId;
     db.Post.findOne({
         where: { id: req.params.postId }
@@ -27,7 +26,7 @@ exports.createComment = (req, res, next) => {
     .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }));
 }
 
-//Affichage des commentaires
+//affichage des commentaires
 exports.getAllComments = (req, res, next) => {
     db.Comment.findAll({
         order: [['updatedAt', "ASC"], ['createdAt', "ASC"]],
@@ -50,7 +49,7 @@ exports.getAllComments = (req, res, next) => {
     });
 }
 
-//Suppression d'un commentaire
+//suppression d'un commentaire
 exports.deleteComment = (req, res, next) => {
     db.Comment.findOne({
         attributes: ['id'],

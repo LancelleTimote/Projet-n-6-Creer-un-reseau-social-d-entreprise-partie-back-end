@@ -3,18 +3,15 @@ const jwt = require('jsonwebtoken');
 const db = require('../models');
 require('dotenv').config();
 
-//Création d'un nouveau message
+//création d'un nouveau message
 exports.createPost = (req, res, next) => {   
     const content = req.body.content;
-    const token = req.headers.authorization.split(' ')[1];
-    const decodedToken = jwt.verify(token, process.env.tokenSecretKey);
+    const decodedToken = jwt.decode(req.headers.authorization.split(' ')[1], process.env.tokenSecretKey);
     const userId = decodedToken.userId;
-    //Vérification tous les champs complet
-    if (content == null || content == '') {
+    if (content == null || content == '') {     //vérification si tous les champs complets
         return res.status(400).json({ error: 'Tous les champs doivent être remplis !' });
     } 
-    //Contrôle longueur du titre et contenu du message
-    if (content.length <= 2) {
+    if (content.length <= 2) {      //contrôle longueur du titre et contenu du message
         return res.status(400).json({ error: 'Le contenu du message doit être d\'au moins 3 caractères !' });
     }
     db.User.findOne({
@@ -25,7 +22,7 @@ exports.createPost = (req, res, next) => {
             const post = db.Post.build({
                 content: req.body.content,
                 imagePost: req.file ? `${req.protocol}://${req.get('host')}/images/${req.file.filename}`: req.body.imagePost,
-                UserId: userFound.id
+                userId: userFound.id
             })
             post.save()
             .then(() => res.status(200).json({ message: 'Votre message a été créé avec succès !' }))
@@ -37,7 +34,7 @@ exports.createPost = (req, res, next) => {
     .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }));
 };
 
-//Affichage tous les messages
+//affichage tous les messages
 exports.getAllPosts = (req, res, next) => {
     db.Post.findAll({
         order: [['createdAt', "DESC"]] ,
@@ -58,18 +55,13 @@ exports.getAllPosts = (req, res, next) => {
     .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite pendant l\'affichage des messages, veuillez recommencer ultérieurement.' }));
 }
 
-//Modification d'un message
+//modification d'un message
 exports.modifyPost = (req, res, next) => {
-    console.log('file', req.file);
-    console.log('content', req.body.content);
-    console.log('bodypost', req.body.post);
     const postObject = req.file ?
     {
     content: req.body.content,
     imagePost: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : { ...req.body };
-    console.log('body', req.body);
-    console.log(req.params.postId);
     db.Post.findOne({
         where: {  id: req.params.postId },
     })
@@ -88,16 +80,16 @@ exports.modifyPost = (req, res, next) => {
     .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }));
 }
 
-//Suppression d'un message
+//suppression d'un message
 exports.deletePost = (req, res, next) => {
     db.Post.findOne({
         attributes: ['id'],
         where: { id: req.params.postId }
     })
-    .then(post => {
-        if(post) {
-            if(post.imagePost != null) {
-                const filename = post.imagePost.split('/images/')[1];
+    .then(postFound => {
+        if(postFound) {
+            if(postFound.imagePost != null) {
+                const filename = postFound.imagePost.split('/images/')[1];
                 fs.unlink(`images/${filename}`, () => {
                     db.Post.destroy({ 
                         where: { id: req.params.postId } 
