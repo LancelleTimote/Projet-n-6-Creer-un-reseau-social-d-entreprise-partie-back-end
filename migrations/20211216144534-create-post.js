@@ -16,13 +16,6 @@ module.exports = {
                     key: 'id'
                 }
             },
-            content: {
-                allowNull: false,
-                type: Sequelize.STRING
-            },
-            imagePost: {
-                type: Sequelize.STRING
-            },
             likes: {
                 allowNull: false,
                 type: Sequelize.INTEGER,
@@ -35,7 +28,14 @@ module.exports = {
             updatedAt: {
                 allowNull: false,
                 type: Sequelize.DATE
-            }
+            },
+            content: {
+                allowNull: false,
+                type: Sequelize.STRING
+            },
+            imagePost: {
+                type: Sequelize.STRING
+            },
         });
     },
     down: async (queryInterface, Sequelize) => {

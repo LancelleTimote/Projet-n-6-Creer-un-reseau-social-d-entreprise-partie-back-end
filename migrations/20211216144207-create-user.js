@@ -26,9 +26,6 @@ module.exports = {
                 allowNull: false,
                 type: Sequelize.STRING
             },
-            profileAvatar: {
-                type: Sequelize.STRING
-            },
             admin: {
                 allowNull: false,
                 type: Sequelize.BOOLEAN
@@ -40,6 +37,9 @@ module.exports = {
             updatedAt: {
                 allowNull: false,
                 type: Sequelize.DATE
+            },
+            profileAvatar: {
+                type: Sequelize.STRING
             },
         });
     },

@@ -105,6 +105,3 @@ exports.deleteAccount = (req, res, next) => {
     })
     .catch(error => res.status(500).json({ error : 'Une erreur s\'est produite, veuillez recommencer ultérieurement.' }));
 }
-
-// post.destroy({ where: { id: id }})
-// comment.destroy({ where: { id: id  }})

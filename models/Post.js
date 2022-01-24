@@ -20,9 +20,9 @@ module.exports = (sequelize, DataTypes) => {
                 key: 'id'
             },
         },
+        likes: DataTypes.INTEGER,
         content: DataTypes.STRING,
         imagePost: DataTypes.STRING,
-        likes: DataTypes.INTEGER,
     }, {
         sequelize,
         modelName: 'Post',

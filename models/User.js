@@ -34,13 +34,13 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.STRING,
             allowNull: false,
         },
+        admin: {
+            allowNull: false,
+            type: DataTypes.BOOLEAN,
+        },
         profileAvatar: {
             type : DataTypes.STRING,
         },
-        admin: {
-            type: DataTypes.BOOLEAN,
-            allowNull: false,
-        }
     }, {
         sequelize,
         modelName: 'User',
