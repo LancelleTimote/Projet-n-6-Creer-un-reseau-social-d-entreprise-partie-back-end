@@ -16,9 +16,15 @@ exports.createComment = (req, res, next) => {
                 postId: postFound.id,
                 userId: userId
             })
-            comment.save()
+            if(comment.content === null || comment.content === '') {
+                return res.status(400).json({ error: 'Vous devez obligatoirement écrire quelque chose avec au minimum 3 lettres !' });
+            } else if(comment.content.length <= 2) {
+                return res.status(400).json({ error: 'Vous devez obligatoirement écrire quelque chose avec au minimum 3 lettres !' });
+            } else {
+                comment.save()
                 .then(() => res.status(201).json({ message: 'Votre commentaire a été créé avec succès !' }))
                 .catch(error => res.status(400).json({ error : 'Une erreur s\'est produite pendant la création de votre commentaire, veuillez recommencer ultérieurement.' }));
+            }
         } else {
             return res.status(401).json({ error: 'Aucun message trouvé !'})
         }
@@ -39,7 +45,6 @@ exports.getAllComments = (req, res, next) => {
     .then(commentFound => {
         if(commentFound) {
             res.status(200).json(commentFound);
-            console.log(commentFound);
         } else {
             res.status(401).json({ error: 'Aucun commentaire trouvé !' });
         }

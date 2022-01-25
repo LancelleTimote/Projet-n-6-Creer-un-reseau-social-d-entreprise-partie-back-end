@@ -30,11 +30,11 @@ exports.signup = (req, res, next) => {  //on sauvegarde un nouvel utilisateur et
         return res.status(400).json({ error: 'Un ou des champs sont incomplets ! Tous les champs doivent être remplis !' });
     }
     //contrôle de la longueur du nom
-    else if(lastName.length <= 2 || lastName.length >= 100) {
+    else if(lastName.length <= 2 || lastName.length >= 101) {
         return res.status(400).json({ error: 'Le nom doit contenir entre 3 et 100 caractères !' });
     }
     //contrôle de la longueur du prénom
-    else if(firstName.length <= 2 || firstName.length >= 100) {
+    else if(firstName.length <= 2 || firstName.length >= 101) {
         return res.status(400).json({ error: 'Le prénom doit contenir entre 3 et 100 caractères !' });
     }
     //contrôle de la validité du mail

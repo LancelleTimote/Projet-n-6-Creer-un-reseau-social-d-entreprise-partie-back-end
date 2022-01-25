@@ -16,17 +16,17 @@ exports.createPost = (req, res, next) => {
         if(postObject.imagePost != null) {
             const filename = postObject.imagePost.split('/images/')[1];
             fs.unlinkSync(`images/${filename}`);
-            return res.status(400).json({ error: 'Tous les champs doivent être remplis !' });
+            return res.status(400).json({ error: 'Vous devez obligatoirement écrire quelque chose avec au minimum 3 lettres !' });
         } else {
-            return res.status(400).json({ error: 'Tous les champs doivent être remplis !' });
+            return res.status(400).json({ error: 'Vous devez obligatoirement écrire quelque chose avec au minimum 3 lettres !' });
         }
     } else if(postObject.content.length <= 2) {      //contrôle longueur du titre et contenu du message
         if(postObject.imagePost != null) {
             const filename = postObject.imagePost.split('/images/')[1];
             fs.unlinkSync(`images/${filename}`);
-            return res.status(400).json({ error: 'Tous les champs doivent être remplis !' });
+            return res.status(400).json({ error: 'Vous devez obligatoirement écrire quelque chose avec au minimum 3 lettres !' });
         } else {
-            return res.status(400).json({ error: 'Tous les champs doivent être remplis !' });
+            return res.status(400).json({ error: 'Vous devez obligatoirement écrire quelque chose avec au minimum 3 lettres !' });
         }
     } else {
         db.User.findOne({
@@ -86,17 +86,17 @@ exports.modifyPost = (req, res, next) => {
             if (postObject.imagePost != null) {
                 const filename = postObject.imagePost.split('/images/')[1];
                 fs.unlinkSync(`images/${filename}`);
-                return res.status(400).json({ error: 'Vous devez écrire quelque chose !' });
+                return res.status(400).json({ error: 'Vous devez obligatoirement écrire quelque chose avec au minimum 3 lettres !' });
             } else {
-                return res.status(400).json({ error: 'Vous devez écrire quelque chose !' });
+                return res.status(400).json({ error: 'Vous devez obligatoirement écrire quelque chose avec au minimum 3 lettres !' });
             }
         } else if(postObject.content.length <= 2) {      //contrôle longueur contenu du message
             if (postObject.imagePost != null) {
                 const filename = postObject.imagePost.split('/images/')[1];
                 fs.unlinkSync(`images/${filename}`);
-                return res.status(400).json({ error: 'Vous devez écrire quelque chose !' });
+                return res.status(400).json({ error: 'Vous devez obligatoirement écrire quelque chose avec au minimum 3 lettres !' });
             } else {
-                return res.status(400).json({ error: 'Vous devez écrire quelque chose !' });
+                return res.status(400).json({ error: 'Vous devez obligatoirement écrire quelque chose avec au minimum 3 lettres !' });
             }
         } else if(postFound && postFound.imagePost !== null && postObject.imagePost != null) {
             const filename = postFound.imagePost.split('/images/')[1];   //on supprime l'ancienne image
