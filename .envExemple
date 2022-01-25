@@ -1,0 +1,10 @@
+tokenSecretKey='$c9HhGvQ7Uoddb9bG0M6Pw.1'
+emailSecretKey='feh8fsagj26gfr8vd63j'
+otherEmailSecretKey='54896321457365985819'
+port=3000
+dbUsername='databaseUser'
+dbPassword='databaseUserPassword'
+dbNameDev='groupomania_network_dev'
+dbNameTest='groupomania_network_test'
+dbNameProd='groupomania_network_prod'
+dbHost=localhost
